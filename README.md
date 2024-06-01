@@ -52,12 +52,12 @@ m_l=h^2
 Fleet size choices of all MoD operators are 1, 2, and 3. Installation cost of MoD nodes 7, 8, 9, 10, 11, 12, and 13 are 3, 3, 2, 2, 1, 1, and 3, respectively for all fleet size options. Travel demand is 1,000 from node 1 to 3, and 500 from node 1 to 4. Trip utility U_s is $9.50 for both OD pairs. The tolerance ϵ for subgradient optimization is 0.05. The tolerance ε of Frank-Wolfe is 0.01 and the required consecutive number of iterations meeting the tolerance is 5. No optimality gap control is applied, the algorithm is terminated when all branches are pruned.
 
 
-<img width="170" alt="image" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/354f459d-989f-4351-abe4-363dfb467367">
+<img width="281" alt="image" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/6f9178d3-736c-4af4-9280-e9e056035abb">
 
 Figure 1. Toy network.
 
 
-<img width="174" alt="image" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/721afabf-f204-4640-8740-7dc27df11fe0">
+<img width="281" alt="image" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/0cdda0ab-fd38-4186-9af5-c4b93a5a8bca">
 
 Figure 2. Expended toy network.
 
