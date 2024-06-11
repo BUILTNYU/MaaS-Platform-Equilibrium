@@ -19,6 +19,7 @@ The tool is coded in Python 3.8.5.
     * Note: if system objectives other than cost are considered other information would be needed for the links, such as GHG emission per user for each link, etc. 
   - For each MoD operator: service zones that they potentially cover, fleet size options, service cost per user in between each pair of service region, installation cost, access cost of each service zones as functions of number of travelers accessing the service through the zone and fleet size of the zone.
     * Note: all costs are trasferred into a common unit, e.g. $.
+    * Note: the access cost function in this tool is defined as follows: t = t_coef*x^2/h, the coefficient t_coef is an input.
 
 - Convergence parameters:
   - Tolerance ϵ of subgradient optimization (default ).
@@ -33,7 +34,55 @@ The tool is coded in Python 3.8.5.
 - Operation decisions of operators:
   - For each fixed-transit operator: the links they decide to operate and corresponding service frequencies;
   - For each MoD operator: service regions that they decide to cover and corresponding fleet sizes;
-- Subsidies per traveler on each link. 
+- Subsidies per traveler on each link.
+
+
+**Input format:**
+
+There are 5 tables required as inputs, which are described as follows. Please name the input tables and columns exactly the same as instructed.
+1. Network information table: "network.csv"
+Columns:
+- link number: ID of the link.
+- from_node: ID of the start node of the link.
+- to_node: ID of the end node of the link.
+- travel cost: travel cost of the link ($).
+- operating cost: operating cost of the link ($). Only applies if it is a fixed-route link. For other link types, 0 should be put in.  
+- capacity: capacity of the link (travelers/unit time). Only applies if it is a fixed-route link. For other link types, a number that is large enough (e.g. 10^8) should be put in.  
+- operator: ID of the operator that owns the link.
+- link type: "fixed", "MOD", or "transfer". "fixed" means fixed-route transit link, "MOD" means MOD link, "transfer" means walking link. 
+  
+2. Demand information table: "demand.csv"
+Columns:
+- user_number: ID of the traveler group.
+- from_node: ID of the node from which the traveler group departs.
+- to_node: ID of the node to which the traveler group heads.
+- demand_amount: number of travelers in the traveler group.
+- utility: trip utility of each travelers in the traveler group ($).
+  
+3. MOD node renumbering table: "MODnodes.csv"
+Columns:
+- fixed_node
+- MOD_node
+- direction
+- operator
+- capacity
+- cost
+  
+4. MOD operation coeffcients table: "MODoper_coef.csv"
+Columns:
+- Operator
+- t_coef
+- c_coef
+  
+5. Fleet size options table: "fleet_size_options.csv"
+Columns:
+- operator
+- fleet_size_options
+
+
+
+**Output format:**
+
 
 
 
@@ -62,5 +111,22 @@ Figure 1. Toy network.
 Figure 2. Expended toy network.
 
 
-The model input include the following tables.
+The model inputs are as follows.
+1. Network information table: "network.csv"
+<img width="646" alt="Screen Shot 2024-06-11 at 3 37 53 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/478b3f7b-ecb2-45ce-a06b-c0c0a285ea5b">
+
+2. Demand information table: "demand.csv"
+<img width="410" alt="Screen Shot 2024-06-11 at 3 38 19 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/c8baa293-8d90-4cb2-a2dc-9f6c962763af">
+ 
+3. MOD node renumbering table: "MODnodes.csv"
+<img width="413" alt="Screen Shot 2024-06-11 at 3 38 43 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/9c21cdab-a01c-4682-82f5-20e05d26d93d">
+  
+4. MOD operation coeffcients table: "MODoper_coef.csv"
+<img width="195" alt="Screen Shot 2024-06-11 at 3 39 07 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/1ad411ac-dd38-48a7-a3d4-98872e61c78e">
+ 
+5. Fleet size options table: "fleet_size_options.csv"
+<img width="208" alt="Screen Shot 2024-06-11 at 3 39 27 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/238891d1-e4db-4a48-9ec4-75aef5228add">
+
+After running the tool, the outputs are as follows.
+
 
