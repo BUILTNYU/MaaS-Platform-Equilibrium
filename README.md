@@ -42,42 +42,42 @@ The tool is coded in Python 3.8.5.
 There are 5 tables required as inputs, which are described as follows. Please name the input tables and columns exactly the same as instructed.
 1. Network information table: "network.csv"
 Columns:
-- link number: ID of the link.
-- from_node: ID of the start node of the link.
-- to_node: ID of the end node of the link.
-- travel cost: travel cost of the link ($).
-- operating cost: operating cost of the link ($). Only applies if it is a fixed-route link. For other link types, 0 should be put in.  
-- capacity: capacity of the link (travelers/unit time). Only applies if it is a fixed-route link. For other link types, a number that is large enough (e.g. 10^8) should be put in.  
-- operator: ID of the operator that owns the link.
-- link type: "fixed", "MOD", or "transfer". "fixed" means fixed-route transit link, "MOD" means MOD link, "transfer" means walking link. 
+- "link number": ID of the link.
+- "from_node": ID of the start node of the link.
+- "to_node": ID of the end node of the link.
+- "travel cost": travel cost of the link ($).
+- "operating cost": operating cost of the link ($). Only applies if it is a fixed-route link. For other link types, 0 should be put in.  
+- "capacity": capacity of the link (travelers/unit time). Only applies if it is a fixed-route link. For other link types, a number that is large enough (e.g. 10^8) should be put in.  
+- "operator": ID of the operator that owns the link.
+- "link type": "fixed", "MOD", or "transfer". "fixed" means fixed-route transit link, "MOD" means MOD link, "transfer" means walking link. 
   
 2. Demand information table: "demand.csv"
 Columns:
-- user_number: ID of the traveler group.
-- from_node: ID of the node from which the traveler group departs.
-- to_node: ID of the node to which the traveler group heads.
-- demand_amount: number of travelers in the traveler group.
-- utility: trip utility of each travelers in the traveler group ($).
+- "user_number": ID of the traveler group.
+- "from_node": ID of the node from which the traveler group departs.
+- "to_node": ID of the node to which the traveler group heads.
+- "demand_amount": number of travelers in the traveler group.
+- "utility": trip utility of each travelers in the traveler group ($).
   
 3. MOD node renumbering table: "MODnodes.csv"
 Columns:
-- fixed_node
-- MOD_node
-- direction
-- operator
-- capacity
-- cost
+- "fixed_node"
+- "MOD_node"
+- "direction"
+- "operator"
+- "capacity"
+- "cost"
   
 4. MOD operation coeffcients table: "MODoper_coef.csv"
 Columns:
-- Operator
-- t_coef
-- c_coef
+- "Operator"
+- "t_coef"
+- "c_coef"
   
 5. Fleet size options table: "fleet_size_options.csv"
 Columns:
-- operator
-- fleet_size_options
+- "operator"
+- "fleet_size_options"
 
 
 
