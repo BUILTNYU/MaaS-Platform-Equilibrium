@@ -96,7 +96,9 @@ Columns:
 
 4. Operation decisions of MOD nodes: "MOD_operation_decisions.csv"
 
-5. Optimal fares: "fares.csv"Optimal user surplus: "user_surplus.csv"
+5. Optimal fares: "fares.csv"
+   
+6. Optimal user surplus: "user_surplus.csv"
 
 
 
@@ -154,9 +156,10 @@ After running the tool, the outputs are as follows.
 <img width="318" alt="Screen Shot 2024-06-14 at 5 53 11 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/49f9169e-0ede-434f-8083-285a0e285d9f">
 
 4. Operation decisions of MOD nodes: "MOD_operation_decisions.csv"
-<img width="485" alt="Screen Shot 2024-06-14 at 5 53 50 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/deebfee8-1c4d-41a5-92cb-ebecbb5554b3">
+<img width="293" alt="Screen Shot 2024-06-14 at 5 58 20 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/4ae16652-c10e-4b93-82f8-01a5bd9e23e7">
 
 5. Optimal fares: "fares.csv"
+<img width="485" alt="Screen Shot 2024-06-14 at 5 53 50 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/deebfee8-1c4d-41a5-92cb-ebecbb5554b3">
    
 6.Optimal user surplus: "user_surplus.csv"
 <img width="757" alt="Screen Shot 2024-06-14 at 5 54 18 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/533e358b-9f6b-4f0e-a722-8620c9abb510">
