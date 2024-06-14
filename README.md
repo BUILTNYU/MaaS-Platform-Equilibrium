@@ -41,6 +41,7 @@ The tool is coded in Python 3.8.5.
 
 There are 5 tables required as inputs, which are described as follows. Please name the input tables and columns exactly the same as instructed.
 1. Network information table: "network.csv"
+   
 Columns:
 - "link number": ID of the link.
 - "from_node": ID of the start node of the link.
@@ -52,6 +53,7 @@ Columns:
 - "link type": "fixed", "MOD", or "transfer". "fixed" means fixed-route transit link, "MOD" means MOD link, "transfer" means walking link. 
   
 2. Demand information table: "demand.csv"
+   
 Columns:
 - "user_number": ID of the traveler group.
 - "from_node": ID of the node from which the traveler group departs.
@@ -60,6 +62,7 @@ Columns:
 - "utility": trip utility of each travelers in the traveler group ($).
   
 3. MOD node renumbering table: "MODnodes.csv"
+   
 Columns:
 - "fixed_node"
 - "MOD_node"
@@ -69,12 +72,14 @@ Columns:
 - "cost"
   
 4. MOD operation coeffcients table: "MODoper_coef.csv"
+   
 Columns:
 - "Operator"
 - "t_coef"
 - "c_coef"
   
 5. Fleet size options table: "fleet_size_options.csv"
+   
 Columns:
 - "operator"
 - "fleet_size_options"
