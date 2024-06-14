@@ -107,12 +107,14 @@ We use a toy network shown in Fig. 1 to illustrate how the method works. All cos
 
 The network is expanded into Fig. 2 by creating complete subgraphs for each MoD operator and adding MoD access links and egress links. Travel cost, operating cost, and capacities are labelled as shown in the legend. The access/wait cost functions of all the MoD operators on all MoD access links l is represented as follows. 
 
-τ_l (∑_(s∈S)▒x_sl ;h)=0.5h^(-2) ∑_(s∈S)▒x_sl
+τ (x_l ;h_l)=0.5h_l^(-2)x_l
+
+$\tau(x_l;h_l)=0.5h_l^{-2}x_l$
 
 
 The MoD operating cost parameter of all the MoD operators at all MoD nodes is represented as follows. 
 
-m_l=h^2
+$m_l=h_l^2$
 
 Fleet size choices of all MoD operators are 1, 2, and 3. Installation cost of MoD nodes 7, 8, 9, 10, 11, 12, and 13 are 3, 3, 2, 2, 1, 1, and 3, respectively for all fleet size options. Travel demand is 1,000 from node 1 to 3, and 500 from node 1 to 4. Trip utility U_s is $9.50 for both OD pairs. The tolerance ϵ for subgradient optimization is 0.05. The tolerance ε of Frank-Wolfe is 0.01 and the required consecutive number of iterations meeting the tolerance is 5. No optimality gap control is applied, the algorithm is terminated when all branches are pruned.
 
