@@ -118,11 +118,17 @@ $x_l$ is the total flow on the access link $l$;
 
 $h_l$ is the fleet size of the operator that covers the node accessed by access link $l$;
 
-in this case, $t_coef = 0.5$.
+in this case, $t_coef = 0.5$, which is inputed in the MOD operation coeffcients table. The form is hard-coded in this tool. 
 
 The MoD operating cost parameter of all the MoD operators at all MoD nodes is represented as follows. 
 
 $m_l=h_l^2$
+
+where
+
+$m_l$ is the operation cost per person of the MOD link $l$;
+
+in this case, $c_coef = 1$, which is inputed in the MOD operation coeffcients table. The form is hard-coded in this tool. 
 
 Fleet size choices of all MoD operators are 1, 2, and 3. Installation cost of MoD nodes 7, 8, 9, 10, 11, 12, and 13 are 3, 3, 2, 2, 1, 1, and 3, respectively for all fleet size options. Travel demand is 1,000 from node 1 to 3, and 500 from node 1 to 4. Trip utility U_s is $9.50 for both OD pairs. The tolerance ϵ for subgradient optimization is 0.05. The tolerance ε of Frank-Wolfe is 0.01 and the required consecutive number of iterations meeting the tolerance is 5. No optimality gap control is applied, the algorithm is terminated when all branches are pruned.
 
