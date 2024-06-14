@@ -107,10 +107,18 @@ We use a toy network shown in Fig. 1 to illustrate how the method works. All cos
 
 The network is expanded into Fig. 2 by creating complete subgraphs for each MoD operator and adding MoD access links and egress links. Travel cost, operating cost, and capacities are labelled as shown in the legend. The access/wait cost functions of all the MoD operators on all MoD access links l is represented as follows. 
 
-τ (x_l ;h_l)=0.5h_l^(-2)x_l
 
 $\tau(x_l;h_l)=0.5h_l^{-2}x_l$
 
+where
+
+$\tau$ is the travel cost of the access link $l$;
+
+$x_l$ is the total flow on the access link $l$;
+
+$h_l$ is the fleet size of the operator that covers the node accessed by access link $l$;
+
+in this case, $t_coef = 0.5$.
 
 The MoD operating cost parameter of all the MoD operators at all MoD nodes is represented as follows. 
 
