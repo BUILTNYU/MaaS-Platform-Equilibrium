@@ -117,6 +117,7 @@ Figure 2. Expended toy network.
 
 
 The model inputs are as follows.
+
 1. Network information table: "network.csv"
 <img width="646" alt="Screen Shot 2024-06-11 at 3 37 53 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/478b3f7b-ecb2-45ce-a06b-c0c0a285ea5b">
 
@@ -133,5 +134,25 @@ The model inputs are as follows.
 <img width="208" alt="Screen Shot 2024-06-11 at 3 39 27 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/238891d1-e4db-4a48-9ec4-75aef5228add">
 
 After running the tool, the outputs are as follows.
+
+1. Optimal link flows per OD: "link_flows_od.csv"
+<img width="495" alt="Screen Shot 2024-06-14 at 5 50 44 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/297869df-de39-4d16-bdf6-e0b1b32cb3a0">
+
+2. Optimal path flows and subsidy needed per user each path: "path_flows_od.csv"
+<img width="536" alt="Screen Shot 2024-06-14 at 5 51 31 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/508948c5-e144-4404-bd57-1915bf08e54f">
+
+3. Operation decisions of fixed-route links: "fixed_route_operation_decisions.csv"
+<img width="318" alt="Screen Shot 2024-06-14 at 5 53 11 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/49f9169e-0ede-434f-8083-285a0e285d9f">
+
+4. Operation decisions of MOD nodes: "MOD_operation_decisions.csv"
+<img width="485" alt="Screen Shot 2024-06-14 at 5 53 50 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/deebfee8-1c4d-41a5-92cb-ebecbb5554b3">
+
+5. Optimal fares: "fares.csv"Optimal user surplus: "user_surplus.csv"
+<img width="757" alt="Screen Shot 2024-06-14 at 5 54 18 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/533e358b-9f6b-4f0e-a722-8620c9abb510">
+
+
+
+
+
 
 
