@@ -88,6 +88,15 @@ Columns:
 
 **Output format:**
 
+1. Optimal link flows per OD: "link_flows_od.csv"
+
+2. Optimal path flows and subsidy needed per user each path: "path_flows_od.csv"
+
+3. Operation decisions of fixed-route links: "fixed_route_operation_decisions.csv"
+
+4. Operation decisions of MOD nodes: "MOD_operation_decisions.csv"
+
+5. Optimal fares: "fares.csv"Optimal user surplus: "user_surplus.csv"
 
 
 
@@ -147,7 +156,9 @@ After running the tool, the outputs are as follows.
 4. Operation decisions of MOD nodes: "MOD_operation_decisions.csv"
 <img width="485" alt="Screen Shot 2024-06-14 at 5 53 50 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/deebfee8-1c4d-41a5-92cb-ebecbb5554b3">
 
-5. Optimal fares: "fares.csv"Optimal user surplus: "user_surplus.csv"
+5. Optimal fares: "fares.csv"
+   
+6.Optimal user surplus: "user_surplus.csv"
 <img width="757" alt="Screen Shot 2024-06-14 at 5 54 18 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/533e358b-9f6b-4f0e-a722-8620c9abb510">
 
 
