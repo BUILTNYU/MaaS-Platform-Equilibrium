@@ -110,7 +110,8 @@ def cost_allo_prep(path_set, flows_path, dual, y, v, h_sol_MOD, h_sol, h, x_sol,
                 tt[link[i]['start'],link[i]['end'],s]=link[i]['travel cost']
        
     for i in link_Acce:    
-        fs = h[MODoper.index(link_Acce[i]['operator'])]
+        fs = h[MODoper.index(link_Acce[i]['operator'])] 
+        fs = float(fs)
         flow = sum(x_sol[link_Acce[i]['start'],link_Acce[i]['end'],s] for s in range(len(d)))
         for s in range(len(d)):
             if flow == 0:
@@ -258,9 +259,9 @@ def cost_allo_prep(path_set, flows_path, dual, y, v, h_sol_MOD, h_sol, h, x_sol,
 
 
 def cost_allo(x_sol, path_set, d, out_of_sys, utility, MODoper, MODnode, MODnode_oper, t_coef, c_coef, oper_list, flows_link, operators, link, link_fixed, link_trans, link_MOD, link_Acce, link_Egre, dummy_link, link_from_to, 
-         a_MODlink, a_fixedlink, a_translink, new_routes, V_coef, MODoper_Acce, orig, dest,
-         user_paths, operators_in_path, nodes, dual, y, v, h, tt): 
-
+             a_MODlink, a_fixedlink, a_translink, new_routes, V_coef, MODoper_Acce, orig, dest,
+             user_paths, operators_in_path, nodes, dual, y, v, h, tt): 
+    
     x = x_sol
 
     used_link_set = []
@@ -268,13 +269,17 @@ def cost_allo(x_sol, path_set, d, out_of_sys, utility, MODoper, MODnode, MODnode
         for jjj in iii:
             used_link_set = used_link_set+jjj
     used_link_set = list(np.unique(used_link_set))
+    lst = []
+    for iii in used_link_set:
+        aaa = (iii,link[iii]["operator"])
+        lst.append(aaa)
 
     m1 = Model()
     # Model variables
-    c = m1.addVars(range(len(d)),lb = 0,vtype = GRB.CONTINUOUS, name = 'price')
+    c = m1.addVars(lst,lb = 0,vtype = GRB.CONTINUOUS, name = 'price')
     u = m1.addVars(range(len(d)),lb = 0,ub=utility, vtype = GRB.CONTINUOUS, name = 'u')
     m1.update()
-    
+
     # (5a) profitability
     infra_cost = dict()
     for operr in MODoper:
@@ -282,7 +287,7 @@ def cost_allo(x_sol, path_set, d, out_of_sys, utility, MODoper, MODnode, MODnode
     for nodee in MODnode_oper:
         operr = MODnode_oper[nodee]
         infra_cost[operr] = infra_cost[operr] + v[MODnode.index(nodee)]*V_coef[nodee]
-
+    
     MODoper_C = dict()
     for i in MODoper:
         link_ = MODoper_Acce[i]
@@ -292,24 +297,15 @@ def cost_allo(x_sol, path_set, d, out_of_sys, utility, MODoper, MODnode, MODnode
                 demand += x_sol[l[0],l[1],ddd]
         MODoper_C[i] = c_coef[i]*demand*(h[MODoper.index(i)]**2) + infra_cost[i]
 
-    ttl_oper_cost = 0
-
     oper_list_ = oper_list.copy()  
     oper_list_.remove(0) 
-
     for oper in oper_list_:
         if oper not in MODoper: # fixed operator       
-            ttl_oper_cost += sum(link[i]['operating cost'] for i in operators[oper])  
+            m1.addConstr(quicksum(c[linkk,oper]*sum(flows_link)[linkk] for linkk in operators[oper]) >= sum(link[i]['operating cost'] for i in operators[oper]) , name = 'operator_profitable_'+str(np.round(oper)))  
         else: # MOD operator
             ooo = intersection(operators[oper], list(a_MODlink))
-            ttl_oper_cost += MODoper_C[oper]
-
-    flow_s = list(np.array(d) - np.array(out_of_sys))
-
-    m1.addConstr(quicksum(c[s]*flow_s[s] for s in range(len(d))) >= ttl_oper_cost, name = 'Profitability')
+            m1.addConstr(quicksum(c[linkk,oper]*sum(flows_link)[linkk] for linkk in ooo) >= MODoper_C[oper], name = 'operator_profitable_'+str(np.round(oper)))
     m1.update()
-#     m1.display()
-
 
     # (5b) feasibility (Requiring same payoff for user paths of the same O-D)
     count =- 1
@@ -321,11 +317,11 @@ def cost_allo(x_sol, path_set, d, out_of_sys, utility, MODoper, MODnode, MODnode
             ttl_price = 0
             path_edges = list(zip(path,path[1:]))
             for edge in path_edges:
-                rhs -= tt[edge[0],edge[1],s]     
+                rhs -= tt[edge[0],edge[1],s]
+                ttl_price += c[link_from_to[edge[0],edge[1]], link[link_from_to[edge[0],edge[1]]]['operator']]        
             path_index = new_routes[s].index(path)
-            m1.addConstr(u[s]+ c[s]== rhs, name = 'cost_allo_'+str(s)+'_'+str(path_index))    
+            m1.addConstr(u[s]+ ttl_price== rhs, name = 'cost_allo_'+str(s)+'_'+str(path_index))    
     m1.update()
-#     m1.display()
 
     # (5c) stability
     capacity = dict()
@@ -398,6 +394,7 @@ def cost_allo(x_sol, path_set, d, out_of_sys, utility, MODoper, MODnode, MODnode
         if fs == 0:
             T_ij[(link_Acce[i]['start'],link_Acce[i]['end'])]  = 9999999999999
         else:
+            fs = float(fs)
             T_ij[(link_Acce[i]['start'],link_Acce[i]['end'])] = t_coef[link_Acce[i]['operator']]*(fs)**(-2)*(flow+1)**1
     for i in link_Egre:
         T_ij[(link_Egre[i]['start'],link_Egre[i]['end'])] = 0
@@ -415,18 +412,17 @@ def cost_allo(x_sol, path_set, d, out_of_sys, utility, MODoper, MODnode, MODnode
             del link_used[i]
         if i in dummy_link:
             del link_used[i]
-            
-            
-    from itertools import combinations
-    from MaaS_game_OD_subscribe import Dijkstra_cpp
 
+    from itertools import combinations
+    from MaaS_game_link_fare_systemopt import Dijkstra_cpp
+     
     stability_path_set = dict()
     for s in range(len(d)):
         stability_path_set[s] = []
-
+        
     for s in range(len(d)):
         stability_path_set_od = []
-
+        
         oper_set = []
         for path_id in user_paths[s]:
             if operators_in_path[path_id] == {}:
@@ -478,37 +474,45 @@ def cost_allo(x_sol, path_set, d, out_of_sys, utility, MODoper, MODnode, MODnode
                 path_link.append(link_from_to[path_node[nodee_ind],path_node[nodee_ind+1]])
 
             r = path_link # link id's
-    #         print(r)
-
+            print(r)
+            
             if r != []:
                 stability_path_set_od.append(r)
                 core = utility[s]
-    #             UN=[]
-    #             rhs=0
+                UN=[]
+                rhs=0
                 for linkk in r:
                     core-=T_ij[link[linkk]['start'],link[linkk]['end']]
                     core-=dual[link[linkk]['start'],link[linkk]['end']]
                     core-=C_ij[link[linkk]['start'],link[linkk]['end']]
-    #                 if linkk in used_link_set:
-    #                     UN.append(c[linkk,link[linkk]['operator']])
-    #             rhs+=sum(list(set(UN)))
+                    if linkk in used_link_set:
+                        UN.append(c[linkk,link[linkk]['operator']])
+                rhs+=sum(list(set(UN)))
                 #adding stability constraints
             #     path_index = new_routes[s].index(j)
-                m1.addConstr(c[s]+u[s]>=core, 
+                m1.addConstr(rhs+u[s]>=core, 
                              name = 'stability_'+str(r))
 
                 m1.update()
         stability_path_set[s] = stability_path_set_od
 
-    # m1.display()   
-
+    ## zeros
+    for i in c:
+        if i[0] in link_trans:
+             m1.addConstr(c[i]==0, name = 'transfer link'+str(link[i[0]]['start'])+str(link[i[0]]['end']))
+        elif i[0] in link_Acce:
+             m1.addConstr(c[i]==0, name = 'Acce link'+str(link[i[0]]['start'])+str(link[i[0]]['end']))
+        elif i[0] in link_Egre:
+             m1.addConstr(c[i]==0, name = 'Egre link'+str(link[i[0]]['start'])+str(link[i[0]]['end']))
+    m1.update()
+    
     obj = 88
     m1.update()
 
     m1.params.outputflag=0
-    # m1.display()
+#     m1.display()
     m1.optimize()
-    #     print(m1.status)
+#     print(m1.status)
     # print(u)
     # m1.computeIIS()
     # m1.write("model_infea.ilp")
@@ -519,7 +523,7 @@ def cost_allo(x_sol, path_set, d, out_of_sys, utility, MODoper, MODnode, MODnode
         m1.computeIIS()
         m1.write("model_infea.ilp")
         a = read('model_infea.ilp')
-        a.display()
+#         a.display()
         infea_path = []
         for s in range(len(d)):
             for path in new_routes[s]:
@@ -546,48 +550,49 @@ def cost_allo(x_sol, path_set, d, out_of_sys, utility, MODoper, MODnode, MODnode
         p = {}
         u_s = []
         u = [] 
-
+        
         return 0, stability_path_set, [], [], [], [], [], []
-
+    
     else:
         print('Cost Allocation feasible!')
-
+        
         # ### User optimal
         obj = 0
-        obj += quicksum(u[s]*(d[s]-out_of_sys[s]) for s in range(len(d))) 
+        obj+=quicksum(u[s]*(d[s]-out_of_sys[s]) for s in range(len(d))) 
         m1.setObjective(obj,GRB.MAXIMIZE)
         m1.update()
         m1.params.outputflag=0
         m1.optimize()
         x_ = m1.getAttr('X', m1.getVars())
-        prices = x_[0:len(d)]
+        prices = x_[0:len(lst)]
         p_user_opt=dict()
-        for s in range(len(d)):
-            p_user_opt[s]=prices[s]
-        u_s_user_opt = x_[len(d) : len(d)+len(d)]
+        for i in range(len(lst)):
+            p_user_opt[lst[i]]=prices[i]
+        u_s_user_opt = x_[len(lst) : len(lst)+len(d)]
         u_user_opt = dict()
         for var in u:
             u_user_opt[var]=u[var].x
-
+        
         # ### Operator optimal
         obj = 0
-        obj += quicksum(c[s]*(d[s]-out_of_sys[s]) for s in range(len(d)))
+        for s in range(len(d)):
+            for linkk in used_link_set:
+                obj+=c[linkk,link[linkk]['operator']]*sum(flows_link)[linkk]
         m1.setObjective(obj,GRB.MAXIMIZE)
         m1.update()
         m1.params.outputflag=0
         m1.optimize()
         x_ = m1.getAttr('X', m1.getVars())
-        prices = x_[0:len(d)]
+        prices = x_[0:len(lst)]
         p_oper_opt=dict()
-        for s in range(len(d)):
-            p_oper_opt[s]=prices[s]
-        u_s_oper_opt = x_[len(d) : len(d)+len(d)]
+        for i in range(len(lst)):
+            p_oper_opt[lst[i]]=prices[i]
+        u_s_oper_opt = x_[len(lst) : len(lst)+len(d)]
         u_oper_opt = dict()
-        for var in u:
+        for i in u:
             u_oper_opt[var]=u[var].x
-
+        
         return 1, stability_path_set, p_user_opt, u_s_user_opt, u_user_opt, p_oper_opt, u_s_oper_opt, u_oper_opt
-
     
 
 ###################################################################################################
@@ -596,8 +601,8 @@ def cost_allo(x_sol, path_set, d, out_of_sys, utility, MODoper, MODnode, MODnode
 
 
 def subsidy_stablize(stability_path_set, x_sol, path_set, d, out_of_sys, utility, MODoper, MODnode, MODnode_oper, t_coef, c_coef, oper_list, flows_link, operators, link, link_fixed, link_trans, link_MOD, link_Acce, link_Egre, dummy_link, link_from_to, path_flow, 
-             a_MODlink, a_fixedlink, a_translink, new_routes, V_coef, MODoper_Acce, orig, dest, 
-             user_paths, operators_in_path, nodes, dual, y, v, h, tt):
+                 a_MODlink, a_fixedlink, a_translink, new_routes, V_coef, MODoper_Acce, orig, dest, 
+                 user_paths, operators_in_path, nodes, dual, y, v, h, tt):
 
     x = x_sol
 
@@ -617,15 +622,14 @@ def subsidy_stablize(stability_path_set, x_sol, path_set, d, out_of_sys, utility
     for i in number_routes:
         for iii in range(number_routes[i]):
             lst_sub.append((i,iii))
-            
+
     m1 = Model()
     # Model variables
-    c = m1.addVars(range(len(d)),lb = 0,vtype = GRB.CONTINUOUS, name = 'price')
+    c = m1.addVars(lst,lb = 0,vtype = GRB.CONTINUOUS, name = 'price')
     u = m1.addVars(range(len(d)),lb = 0,ub=utility, vtype = GRB.CONTINUOUS, name = 'u')
     S_path = m1.addVars(lst_sub, lb = 0, vtype = GRB.CONTINUOUS, name = 'subsidy_user')  
     m1.update()
 
-    
     # (5a) profitability
     infra_cost = dict()
     for operr in MODoper:
@@ -633,7 +637,7 @@ def subsidy_stablize(stability_path_set, x_sol, path_set, d, out_of_sys, utility
     for nodee in MODnode_oper:
         operr = MODnode_oper[nodee]
         infra_cost[operr] = infra_cost[operr] + v[MODnode.index(nodee)]*V_coef[nodee]
-
+    
     MODoper_C = dict()
     for i in MODoper:
         link_ = MODoper_Acce[i]
@@ -643,38 +647,31 @@ def subsidy_stablize(stability_path_set, x_sol, path_set, d, out_of_sys, utility
                 demand += x_sol[l[0],l[1],ddd]
         MODoper_C[i] = c_coef[i]*demand*(h[MODoper.index(i)]**2) + infra_cost[i]
 
-    ttl_oper_cost = 0
-
     oper_list_ = oper_list.copy()  
-    oper_list_.remove(0)
-
+    oper_list_.remove(0) 
     for oper in oper_list_:
         if oper not in MODoper: # fixed operator       
-            ttl_oper_cost += sum(link[i]['operating cost'] for i in operators[oper])  
+            m1.addConstr(quicksum((c[linkk,oper])*sum(flows_link)[linkk] for linkk in operators[oper]) >= sum(link[i]['operating cost'] for i in operators[oper]) , name = 'operator_profitable_'+str(np.round(oper)))  
         else: # MOD operator
             ooo = intersection(operators[oper], list(a_MODlink))
-            ttl_oper_cost += MODoper_C[oper]
-
-    flow_s = list(np.array(d) - np.array(out_of_sys))
-
-    m1.addConstr(quicksum(c[s]*flow_s[s] for s in range(len(d))) >= ttl_oper_cost, name = 'Profitability')
+            m1.addConstr(quicksum((c[linkk,oper])*sum(flows_link)[linkk] for linkk in ooo) >= MODoper_C[oper], name = 'operator_profitable_'+str(np.round(oper)))
     m1.update()
 
-   
     # (5b) feasibility (Requiring same payoff for user paths of the same O-D)
     count =- 1
     for s in range(len(d)):
         for path in new_routes[s]:
             count += 1
-            path_index = new_routes[s].index(path)
-            rhs = utility[s] + S_path[s,path_index]
+            rhs = utility[s]
             lhs = 0
             ttl_price = 0
             path_edges = list(zip(path,path[1:]))
             for edge in path_edges:
-                rhs -= tt[edge[0],edge[1],s]     
+                rhs -= tt[edge[0],edge[1],s]
+                ttl_price += c[link_from_to[edge[0],edge[1]], link[link_from_to[edge[0],edge[1]]]['operator']]
             path_index = new_routes[s].index(path)
-            m1.addConstr(u[s]+ c[s]== rhs, name = 'cost_allo_'+str(s)+'_'+str(path_index))    
+            ttl_price -= S_path[s,path_index]
+            m1.addConstr(u[s]+ ttl_price== rhs, name = 'cost_allo_'+str(s)+'_'+str(path_index))    
     m1.update()
 
     # (5c) stability
@@ -748,6 +745,7 @@ def subsidy_stablize(stability_path_set, x_sol, path_set, d, out_of_sys, utility
         if fs == 0:
             T_ij[(link_Acce[i]['start'],link_Acce[i]['end'])]  = 9999999999999
         else:
+            fs = float(fs)
             T_ij[(link_Acce[i]['start'],link_Acce[i]['end'])] = t_coef[link_Acce[i]['operator']]*(fs)**(-2)*(flow+1)**1
     for i in link_Egre:
         T_ij[(link_Egre[i]['start'],link_Egre[i]['end'])] = 0
@@ -766,22 +764,36 @@ def subsidy_stablize(stability_path_set, x_sol, path_set, d, out_of_sys, utility
         if i in dummy_link:
             del link_used[i]
 
+
     for s in range(len(d)):
         for r in stability_path_set[s]:
             core = utility[s]
+            UN=[]
+            rhs=0
             for linkk in r:
                 core-=T_ij[link[linkk]['start'],link[linkk]['end']]
                 core-=dual[link[linkk]['start'],link[linkk]['end']]
                 core-=C_ij[link[linkk]['start'],link[linkk]['end']]
-    #             if linkk in used_link_set:
-    #                 UN.append(c[linkk,link[linkk]['operator']])
-    #         rhs+=sum(list(set(UN)))
+                if linkk in used_link_set:
+                    UN.append(c[linkk,link[linkk]['operator']])
+            rhs+=sum(list(set(UN)))
             #adding stability constraints
         #     path_index = new_routes[s].index(j)
-            m1.addConstr(c[s]+u[s]>=core, 
+            m1.addConstr(rhs+u[s]>=core, 
                          name = 'stability_'+str(r))
             m1.update()
 
+
+
+    ## zeros
+    for i in c:
+        if i[0] in link_trans:
+             m1.addConstr(c[i]==0, name = 'transfer link'+str(link[i[0]]['start'])+str(link[i[0]]['end']))
+        elif i[0] in link_Acce:
+             m1.addConstr(c[i]==0, name = 'Acce link'+str(link[i[0]]['start'])+str(link[i[0]]['end']))
+        elif i[0] in link_Egre:
+             m1.addConstr(c[i]==0, name = 'Egre link'+str(link[i[0]]['start'])+str(link[i[0]]['end']))
+    m1.update()
 
     ################## Total Subsidies ##################
     obj = 0
@@ -794,10 +806,10 @@ def subsidy_stablize(stability_path_set, x_sol, path_set, d, out_of_sys, utility
 
     m1.setObjective(obj,GRB.MINIMIZE)
     m1.update()
-    m1.display()
+#     m1.display()
     m1.params.outputflag=0
     m1.optimize()
-
+    
     if m1.status == 2:        
         subsidy_feasi = 1        
         subsidy_obj = m1.getObjective()
@@ -812,14 +824,13 @@ def subsidy_stablize(stability_path_set, x_sol, path_set, d, out_of_sys, utility
     return subsidy_feasi, subsidy_obj, S_path
 
 
-
 ###################################################################################################
 ###################################################################################################
 ###################################################################################################
 
 
 def cost_allo_sub(stability_path_set, x_sol, path_set, d, out_of_sys, utility, MODoper, MODnode, MODnode_oper, t_coef, c_coef, oper_list, flows_link, operators, link, link_fixed, link_trans, link_MOD, link_Acce, link_Egre, dummy_link, link_from_to, path_flow, a_MODlink, a_fixedlink, a_translink, new_routes, V_coef, MODoper_Acce, orig, dest, user_paths, operators_in_path, nodes, dual, y, v, h, tt, S_path):
-
+    
     x = x_sol
 
     used_link_set = []
@@ -834,18 +845,19 @@ def cost_allo_sub(stability_path_set, x_sol, path_set, d, out_of_sys, utility, M
 
     m1 = Model()
     # Model variables
-    c = m1.addVars(range(len(d)),lb = 0,vtype = GRB.CONTINUOUS, name = 'price')
+    c = m1.addVars(lst,lb = 0,vtype = GRB.CONTINUOUS, name = 'price')
     u = m1.addVars(range(len(d)),lb = 0,ub=utility, vtype = GRB.CONTINUOUS, name = 'u')    
     m1.update()
-    
+
     # (5a) profitability
+    
     infra_cost = dict()
     for operr in MODoper:
         infra_cost[operr] = 0
     for nodee in MODnode_oper:
         operr = MODnode_oper[nodee]
         infra_cost[operr] = infra_cost[operr] + v[MODnode.index(nodee)]*V_coef[nodee]
-
+        
     MODoper_C = dict()
     for i in MODoper:
         link_ = MODoper_Acce[i]
@@ -855,38 +867,31 @@ def cost_allo_sub(stability_path_set, x_sol, path_set, d, out_of_sys, utility, M
                 demand += x_sol[l[0],l[1],ddd]
         MODoper_C[i] = c_coef[i]*demand*(h[MODoper.index(i)]**2) + infra_cost[i]
 
-    ttl_oper_cost = 0
-
     oper_list_ = oper_list.copy()  
-    oper_list_.remove(0)
-
+    oper_list_.remove(0) 
     for oper in oper_list_:
         if oper not in MODoper: # fixed operator       
-            ttl_oper_cost += sum(link[i]['operating cost'] for i in operators[oper])  
+            m1.addConstr(quicksum((c[linkk,oper])*sum(flows_link)[linkk] for linkk in operators[oper]) >= sum(link[i]['operating cost'] for i in operators[oper]) , name = 'operator_profitable_'+str(np.round(oper)))  
         else: # MOD operator
             ooo = intersection(operators[oper], list(a_MODlink))
-            ttl_oper_cost += MODoper_C[oper]
-
-    flow_s = list(np.array(d) - np.array(out_of_sys))
-
-    m1.addConstr(quicksum(c[s]*flow_s[s] for s in range(len(d))) >= ttl_oper_cost, name = 'Profitability')
+            m1.addConstr(quicksum((c[linkk,oper])*sum(flows_link)[linkk] for linkk in ooo) >= MODoper_C[oper], name = 'operator_profitable_'+str(np.round(oper)))
     m1.update()
-
 
     # (5b) feasibility (Requiring same payoff for user paths of the same O-D)
     count =- 1
     for s in range(len(d)):
         for path in new_routes[s]:
             count += 1
-            path_index = new_routes[s].index(path)
-            rhs = utility[s] + S_path[s,path_index]
+            rhs = utility[s]
             lhs = 0
             ttl_price = 0
             path_edges = list(zip(path,path[1:]))
             for edge in path_edges:
-                rhs -= tt[edge[0],edge[1],s]     
+                rhs -= tt[edge[0],edge[1],s]
+                ttl_price += c[link_from_to[edge[0],edge[1]], link[link_from_to[edge[0],edge[1]]]['operator']]
             path_index = new_routes[s].index(path)
-            m1.addConstr(u[s]+ c[s]== rhs, name = 'cost_allo_'+str(s)+'_'+str(path_index))    
+            ttl_price -= S_path[s,path_index]
+            m1.addConstr(u[s]+ ttl_price== rhs, name = 'cost_allo_'+str(s)+'_'+str(path_index))    
     m1.update()
 
     # (5c) stability
@@ -960,6 +965,7 @@ def cost_allo_sub(stability_path_set, x_sol, path_set, d, out_of_sys, utility, M
         if fs == 0:
             T_ij[(link_Acce[i]['start'],link_Acce[i]['end'])]  = 9999999999999
         else:
+            fs = float(fs)
             T_ij[(link_Acce[i]['start'],link_Acce[i]['end'])] = t_coef[link_Acce[i]['operator']]*(fs)**(-2)*(flow+1)**1
     for i in link_Egre:
         T_ij[(link_Egre[i]['start'],link_Egre[i]['end'])] = 0
@@ -978,61 +984,73 @@ def cost_allo_sub(stability_path_set, x_sol, path_set, d, out_of_sys, utility, M
         if i in dummy_link:
             del link_used[i]
 
-
+   
     for s in range(len(d)):
         for r in stability_path_set[s]:
             core = utility[s]
+            UN=[]
+            rhs=0
             for linkk in r:
                 core-=T_ij[link[linkk]['start'],link[linkk]['end']]
                 core-=dual[link[linkk]['start'],link[linkk]['end']]
                 core-=C_ij[link[linkk]['start'],link[linkk]['end']]
-    #             if linkk in used_link_set:
-    #                 UN.append(c[linkk,link[linkk]['operator']])
-    #         rhs+=sum(list(set(UN)))
+                if linkk in used_link_set:
+                    UN.append(c[linkk,link[linkk]['operator']])
+            rhs+=sum(list(set(UN)))
             #adding stability constraints
         #     path_index = new_routes[s].index(j)
-            m1.addConstr(c[s]+u[s]>=core, 
+            m1.addConstr(rhs+u[s]>=core, 
                          name = 'stability_'+str(r))
             m1.update()
+     
 
+    ## zeros
+    for i in c:
+        if i[0] in link_trans:
+             m1.addConstr(c[i]==0, name = 'transfer link'+str(link[i[0]]['start'])+str(link[i[0]]['end']))
+        elif i[0] in link_Acce:
+             m1.addConstr(c[i]==0, name = 'Acce link'+str(link[i[0]]['start'])+str(link[i[0]]['end']))
+        elif i[0] in link_Egre:
+             m1.addConstr(c[i]==0, name = 'Egre link'+str(link[i[0]]['start'])+str(link[i[0]]['end']))
+    m1.update()
             
     # ### User optimal
     obj = 0
-    obj += quicksum(u[s]*(d[s]-out_of_sys[s]) for s in range(len(d))) 
+    obj+=quicksum(u[s]*(d[s]-out_of_sys[s]) for s in range(len(d))) 
     m1.setObjective(obj,GRB.MAXIMIZE)
     m1.update()
     m1.params.outputflag=0
     m1.optimize()
     x_ = m1.getAttr('X', m1.getVars())
-    prices = x_[0:len(d)]
+    prices = x_[0:len(lst)]
     p_user_opt=dict()
-    for s in range(len(d)):
-        p_user_opt[s]=prices[s]
-    u_s_user_opt = x_[len(d) : len(d)+len(d)]
+    for i in range(len(lst)):
+        p_user_opt[lst[i]]=prices[i]
+    u_s_user_opt = x_[len(lst) : len(lst)+len(d)]
     u_user_opt = dict()
     for var in u:
         u_user_opt[var]=u[var].x
 
-        
     # ### Operator optimal
     obj = 0
-    obj += quicksum(c[s]*(d[s]-out_of_sys[s]) for s in range(len(d)))
+    for s in range(len(d)):
+        for linkk in used_link_set:
+            obj+=c[linkk,link[linkk]['operator']]*sum(flows_link)[linkk]
     m1.setObjective(obj,GRB.MAXIMIZE)
     m1.update()
     m1.params.outputflag=0
     m1.optimize()
     x_ = m1.getAttr('X', m1.getVars())
-    prices = x_[0:len(d)]
+    prices = x_[0:len(lst)]
     p_oper_opt=dict()
-    for s in range(len(d)):
-        p_oper_opt[s]=prices[s]
-    u_s_oper_opt = x_[len(d) : len(d)+len(d)]
+    for i in range(len(lst)):
+        p_oper_opt[lst[i]]=prices[i]
+    u_s_oper_opt = x_[len(lst) : len(lst)+len(d)]
     u_oper_opt = dict()
     for var in u:
         u_oper_opt[var]=u[var].x
 
     return p_user_opt, u_s_user_opt, u_user_opt, p_oper_opt, u_s_oper_opt, u_oper_opt
-
 
 
 ###################################################################################################

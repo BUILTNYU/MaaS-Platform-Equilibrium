@@ -1,0 +1,3 @@
+﻿user_number,from_node,to_node,demand_amount,utility
+1,1,3,1000,9.5
+2,1,4,500,9.5

@@ -14,7 +14,7 @@ import timeit
 import numpy as np
 import ctypes
 import copy
-from Cost_allo_sub_link import pre_process_intsol, cost_allo_prep, cost_allo, subsidy_stablize, cost_allo_sub
+from Cost_allo_sub_link_systemopt import pre_process_intsol, cost_allo_prep, cost_allo, subsidy_stablize, cost_allo_sub
 
 
 
@@ -732,7 +732,12 @@ def FW(PRINT,path_set,adj_link_cost,FW_tol,FW_conver_times,x_int,t_coef, c_coef,
 #         print("-----Initial x-----")
 #         plot(x)
 
-    cost_adj = adj_link_cost[0:-2,:].T
+    cost_adj = adj_link_cost[0:-2,:].T  
+    for i in link_Acce_b:
+        link_ind = a_alllink_b.index(i)
+        h = link_b[i]['fleet size']
+        for k in range(len(orig)):
+            cost_adj[k,link_ind] = 2*t_coef[link_b[i]['operator']]/(h**2)*(sum(x)[link_ind]) ######### marginal cost
     
     count = 0
 #     t_eq_sum = 0
@@ -748,6 +753,7 @@ def FW(PRINT,path_set,adj_link_cost,FW_tol,FW_conver_times,x_int,t_coef, c_coef,
 #         if PRINT == 1:
 #             print("-----Y-----")
 #             plot(Y)
+
 
         sol_start = time.time()
         alpha, t_eq, t_sol = find_alpha_der_0(PRINT,adj_link_cost, t_coef, c_coef, a_alllink_b, Y, x,  d, link_b, link_fixed_b, link_trans, link_MOD_b, link_Acce_b, link_Egre_b, dummy_link, MOD_nodes_b, transin_oper_b, V_coef, utility)
@@ -766,7 +772,7 @@ def FW(PRINT,path_set,adj_link_cost,FW_tol,FW_conver_times,x_int,t_coef, c_coef,
             h = link_b[i]['fleet size']
     #         print(i, (link_b[i]['start'],link_b[i]['end']), cost_adj[:,link_ind])
             for k in range(len(orig)):
-                cost_adj[k,link_ind] = t_coef[link_b[i]['operator']]/(h**2)*(sum(x)[link_ind])
+                cost_adj[k,link_ind] = 2*t_coef[link_b[i]['operator']]/(h**2)*(sum(x)[link_ind]) ## marginal cost
                 adj_link_cost[link_ind,k] = t_coef[link_b[i]['operator']]/(h**2)*(sum(x)[link_ind])
 #             print(i, (link_b[i]['start'],link_b[i]['end']), cost_adj[:,link_ind])
 #             print(" ")
@@ -784,8 +790,7 @@ def FW(PRINT,path_set,adj_link_cost,FW_tol,FW_conver_times,x_int,t_coef, c_coef,
 #     print("Equation time:", t_eq_sum)
 #     print("Solving time:", t_sol_sum)
     
-    if PRINT == 1:
-        print("FW iterations:", iii)
+#     print("FW iterations:", iii)
 
     return x_sp, path_set
 
@@ -817,7 +822,7 @@ def obj(t_coef, c_coef, x, d, adj_link_cost, a_alllink_b, link_b, link_trans,lin
         sum_x = 0
         for s in range(len(d)):
             sum_x += x[s,link_id]
-        objective += t_coef[link_b[i]['operator']]/(2 * h**2) * sum_x**2
+        objective += t_coef[link_b[i]['operator']]/(h**2) * sum_x**2
     ########################
        
     return objective
@@ -846,7 +851,7 @@ def obj_yv(t_coef, c_coef, flows, y_sol, v_sol, d, a_alllink_b, link, link_fixed
     for i in transin_oper:
         h = link[i]['fleet size']
         sum_x = sum(flows[:,i])
-        objective += t_coef[link[i]['operator']]/(2 * h**2) * sum_x**2
+        objective += t_coef[link[i]['operator']]/(h**2) * sum_x**2
 
     for i in link_fixed:
         objective += y_sol[i] * link[i]["operating cost"]
@@ -1075,8 +1080,8 @@ def find_alpha_der_0(PRINT, adj_link_cost, t_coef, c_coef, a_alllink_b, Y, x,  d
         for s in range(len(d)):
             sum_y_x += Y[s,link_id]-x[s,link_id]
         
-        expr_a += t_coef[link_b[i]['operator']]*h**(-2)*sum_y_x**2
-        expr_b += t_coef[link_b[i]['operator']]*h**(-2)*sum_y_x*sum_x
+        expr_a += 2*t_coef[link_b[i]['operator']]*h**(-2)*sum_y_x**2
+        expr_b += 2*t_coef[link_b[i]['operator']]*h**(-2)*sum_y_x*sum_x
     
     eq_end = time.time()
     t_eq = eq_end - eq_start
@@ -1222,7 +1227,7 @@ def subgrad_opt(PRINT,y_fixed_1, y_fixed_0, v_fixed_1, v_fixed_0, num_iter, tole
         
         if PRINT == 1:
             print("----------------")
-            print('Iteration '+str(q))
+            print('Subgradient opt iteration '+str(q))
 
         #kth iteration
         # step size
@@ -1444,8 +1449,7 @@ def subgrad_opt(PRINT,y_fixed_1, y_fixed_0, v_fixed_1, v_fixed_0, num_iter, tole
         i_end = time.time()
         times.append(i_end - i_start)
         
-        if PRINT == 1:
-            print(q, times[q-1])
+    print("Subgradient opt number of iterations:",q)
         
 #         if times[q-1]>10:
 #             print("FW time:", times_in_iter)

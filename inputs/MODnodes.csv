@@ -1,0 +1,8 @@
+fixed_node,MOD_node,direction,operator,capacity,cost
+1,7,bi,7,100,3
+21,8,bi,7,100,3
+21,9,bi,8,100,0
+21,11,bi,9,100,0
+3,10,bi,8,100,1
+3,13,bi,7,100,1
+4,12,bi,9,100,3
