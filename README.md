@@ -221,6 +221,11 @@ After running the tool, the outputs are as follows.
 <img width="757" alt="Screen Shot 2024-06-14 at 5 54 18 AM" src="https://github.com/BUILTNYU/MaaS-Platform-Equilibrium/assets/75587054/533e358b-9f6b-4f0e-a722-8620c9abb510">
 
 
+------------
+
+Please contact bingqing.liu@nyu.edu for questions or more information.
+
+
 
 
 
