@@ -22,10 +22,9 @@ The tool is coded in Python 3.8.5.
     * Note: the access cost function in this tool is defined as follows: t = t_coef*x^2/h, the coefficient t_coef is an input.
 
 - Convergence parameters:
-  - Tolerance ϵ of subgradient optimization (default ).
-  - Tolerance ε of Frank-Wolfe algorithm (default ).
-  - Required consecutive number of iterations meeting the tolerance of Frank-Wolfe algorithm (default ).
-  - Optimality gap control parameter of Branch-and-bound algorithm (default ).
+  - Tolerance ϵ of subgradient optimization (default: tolerance = 0.05).
+  - Tolerance ε of Frank-Wolfe algorithm (default: FW_tol = 10**-2).
+  - Required consecutive number of iterations meeting the tolerance of Frank-Wolfe algorithm (default: FW_conver_times = 5).
 
 
 **Model outputs:**
@@ -114,15 +113,55 @@ Columns:
 
 1. Optimal link flows per OD: "link_flows_od.csv"
 
+Columns:
+- "origin": node ID of the origin of the OD pair. 
+- "destination": node ID of the destination of the OD pair. 
+- "start": node ID of the start of the link. 
+- "end": node ID of the end of the link. 
+- "operator": operator ID of the operator that controls the link (0 if no one owns).
+- "link_flow_of_the_od": solved link flow of the OD pair on the link (number of people per time unit).
+
 2. Optimal path flows and subsidy needed per user each path: "path_flows_od.csv"
 
-3. Operation decisions of fixed-route links: "fixed_route_operation_decisions.csv"
+Columns:
+- "origin": node ID of the origin of the OD pair. 
+- "destination": node ID of the destination of the OD pair. 
+- "path": path consists of a list of node IDs. 
+- "path_flow": solved flow on the path (number of people per time unit).
+- "subsidy_per_person": solved subsidy per person on the path ($).
 
-4. Operation decisions of MOD nodes: "MOD_operation_decisions.csv"
+4. Operation decisions of fixed-route links: "fixed_route_operation_decisions.csv"
 
-5. Optimal fares: "fares.csv"
+Columns:
+- "start": node ID of the start of the link. 
+- "end": node ID of the end of the link. 
+- "operator": operator ID of the operator that controls the link.
+- "operated_or_not": 1 if link operated, 0 otherwise.
+
+6. Operation decisions of MOD nodes: "MOD_operation_decisions.csv"
+
+Columns:
+- "node": MOD node ID. 
+- "operator": operator ID of the MOD operator that controls the MOD node. 
+- "fleet_size": fleet size options of the MOD node. 
+- "chosen_or_not": 1 if the combination of MOD node and fleet size is choosen by the MOD operator, 0 otherwise.  
+
+8. Optimal fares: "fares.csv"
+
+Columns:
+- "start": node ID of the start of the link. 
+- "end": node ID of the end of the link. 
+- "operator": operator ID of the operator that controls the link. 
+- "buyer_optimal_fare": solved link fare for buyer optimal ($).
+- "seller_optimal_fare": solved link fare for seller optimal ($).
    
-6. Optimal user surplus: "user_surplus.csv"
+10. Optimal user surplus: "user_surplus.csv"
+
+Columns:
+- "origin": node ID of the origin of the OD pair. 
+- "destination": node ID of the destination of the OD pair. 
+- "user_surplus_per_person_buyer_optimal": user surplus per person of the OD pair at buyer optimal ($). 
+- "user_surplus_per_person_seller_optimal": user surplus per person of the OD pair at seller optimal ($). 
 
 
 
