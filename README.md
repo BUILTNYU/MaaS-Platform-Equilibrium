@@ -64,25 +64,49 @@ Columns:
 3. MOD node renumbering table: "MODnodes.csv"
    
 Columns:
-- "fixed_node"
-- "MOD_node"
-- "direction"
-- "operator"
-- "capacity"
-- "cost"
+- "fixed_node": MOD zones are represented by their centroids which are included in the network constructed by fixed-route transit links and transfer links (fixed network). This column is the ID of the node in the fixed network.  
+- "MOD_node": ID of the MOD node that represent the same location as the node in the fixed network in the same row. 
+- "direction": "bi" or not. Bidirection or not. "bi" as default.
+- "operator": ID of the MOD operator that owns the node.
+- "capacity": capacity of the MOD node when it is operated (number of users per time unit).
+- "cost": cost of operating the MOD node ($). a one-time fixed cost representing the infrastructure cost.
   
 4. MOD operation coeffcients table: "MODoper_coef.csv"
+
+The access/wait cost functions of all the MoD operators on all MoD access links l is represented as follows. 
+
+$\tau(x_l;h_l)=0.5h_l^{-2}x_l$
+
+where
+
+$\tau$ is the travel cost of the access link $l$;
+
+$x_l$ is the total flow on the access link $l$;
+
+$h_l$ is the fleet size of the operator that covers the node accessed by access link $l$;
+
+$t_coef$ is a parameter input by this table. The form is hard-coded in this tool. 
+
+The MoD operating cost per user on MOD link $l$ of all the MoD operators at all MoD nodes is represented as follows. 
+
+$m_l=h_l^2$
+
+where
+
+$m_l$ is the operation cost per person of the MOD link $l$;
+
+$c_coef$is a parameter input by this table. The form is hard-coded in this tool. 
    
 Columns:
-- "Operator"
-- "t_coef"
-- "c_coef"
+- "Operator": ID of the MOD operator. 
+- "t_coef": value of $t_coef$ for the MOD operator.
+- "c_coef": value of $c_coef$ for the MOD operator.
   
 5. Fleet size options table: "fleet_size_options.csv"
    
 Columns:
-- "operator"
-- "fleet_size_options"
+- "operator": ID of MOD operator.
+- "fleet_size_options": fleet size options of the MOD operator as a string separated by commas, e.g. "1,2,3". 
 
 
 
@@ -105,30 +129,7 @@ Columns:
 # Example
 We use a toy network shown in Fig. 1 to illustrate how the method works. All costs are in dollars ($). The solid links represent the fixed-route services, links with the same color are operated by the same operator. Link (21,22) and (21,23) are transfer links between lines, which are without capacity and operating cost with no owners. There are 3 MoD operators (blue, green, brown). The circles represent the service zones that MOD operators can choose from to operate (blue: A,B,C; green: B,C; brown: B,D). Zone A covers transit station node 1. Zone B covers transit station nodes 21,22,23. Zone C covers transit station node 3. Zone D covers transit station node 4.
 
-The network is expanded into Fig. 2 by creating complete subgraphs for each MoD operator and adding MoD access links and egress links. Travel cost, operating cost, and capacities are labelled as shown in the legend. The access/wait cost functions of all the MoD operators on all MoD access links l is represented as follows. 
-
-
-$\tau(x_l;h_l)=0.5h_l^{-2}x_l$
-
-where
-
-$\tau$ is the travel cost of the access link $l$;
-
-$x_l$ is the total flow on the access link $l$;
-
-$h_l$ is the fleet size of the operator that covers the node accessed by access link $l$;
-
-in this case, $t_coef = 0.5$, which is inputed in the MOD operation coeffcients table. The form is hard-coded in this tool. 
-
-The MoD operating cost parameter of all the MoD operators at all MoD nodes is represented as follows. 
-
-$m_l=h_l^2$
-
-where
-
-$m_l$ is the operation cost per person of the MOD link $l$;
-
-in this case, $c_coef = 1$, which is inputed in the MOD operation coeffcients table. The form is hard-coded in this tool. 
+The network is expanded into Fig. 2 by creating complete subgraphs for each MoD operator and adding MoD access links and egress links. Travel cost, operating cost, and capacities are labelled as shown in the legend. 
 
 Fleet size choices of all MoD operators are 1, 2, and 3. Installation cost of MoD nodes 7, 8, 9, 10, 11, 12, and 13 are 3, 3, 2, 2, 1, 1, and 3, respectively for all fleet size options. Travel demand is 1,000 from node 1 to 3, and 500 from node 1 to 4. Trip utility U_s is $9.50 for both OD pairs. The tolerance ϵ for subgradient optimization is 0.05. The tolerance ε of Frank-Wolfe is 0.01 and the required consecutive number of iterations meeting the tolerance is 5. No optimality gap control is applied, the algorithm is terminated when all branches are pruned.
 
